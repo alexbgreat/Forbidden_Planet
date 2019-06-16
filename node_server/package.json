@@ -1,9 +1,17 @@
 {
   "name": "node_server",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "discord.js",
   "license": "MIT",
   "dependencies": {
-    "discord.js": "^11.5.1"
+    "chai": "^4.2.0",
+    "discord.js": "^11.5.1",
+    "mocha": "^6.1.4"
+  },
+  "devDependencies": {
+    "nyc": "^14.1.1"
+  },
+  "scripts": {
+    "test": "mocha"
   }
 }
