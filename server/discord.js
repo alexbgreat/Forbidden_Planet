@@ -65,6 +65,11 @@ const commands = {
     params: "*<**new** | **latest**>* *default:* **latest**",
     info: "restarts the server",
     usage: "!restart"
+  },
+  online: {
+    params: "",
+    info: "Logs the current online player count",
+    usage: "!online"
   }
 }
 const printHelp = (channelName) => {
@@ -130,7 +135,10 @@ client.on('message', async message => {
 
     const param = message.content.split(/\s/g)[1]
     if (message.content.startsWith('!online')) {
-      server.online_players()
+      if(!server.online)
+        messageEmbedded("bananas", "Error", "Server is currently not running", 0xff0000)
+      else
+        server.online_players()
     } else if (message.content.startsWith('!start')) {
 
       event.register("started", () => {
@@ -151,7 +159,7 @@ client.on('message', async message => {
       messageEmbedded("bananas", "Status", statusMessages.restart.replace('__USER__', messageAuthor), 0xffff00)
     }
   } else {
-    
+    if(!server.online) return
     const text = escapeString(message.cleanContent)
     server.message(message.author.username,text)
 
