@@ -3,7 +3,7 @@ const Event = require('event.js');
 const Server = require('factorio.js');
 
 const client = new Client();
-const Server = new Server();
+const server = new Server();
 
 const auth = require('./auth')
 
@@ -112,56 +112,55 @@ setInterval(() => chatMessage("bananas"), 2500)
 const { spawn, exec } = require('child_process');
 const readline = require('readline');
 
-const server = new Server()
+client.on('message', process_message);
 
+function process_message(message) {
 
-client.on('message', async message => {
+    if (message.author.bot) return
+    if(message.type != "DEFAULT") return
+    if(message.channel.name !== "bananas") return
+    const messageAuthor = message.author.username
 
-  if (message.author.bot) return
-  if(message.type != "DEFAULT") return
-  if(message.channel.name !== "bananas") return
-  const messageAuthor = message.author.username
-
-
-
-  if (message.content.startsWith('!')) {
-    if (message.content.startsWith('!help'))
-      printHelp("bananas")
-
-    if (!message.member.roles.find(r => (r.name === "Administrator" || r.name === "Moderator"))) {
-      message.reply("You don't have permissions to run that command :(")
-      return
+    if (message.content.startsWith('!')) {
+      if (!message.member.roles.find(r => (r.name === "Administrator" || r.name === "Moderator"))) {
+        message.reply("You don't have permissions to run that command :(")
+        return
+      }
     }
-
-    const param = message.content.split(/\s/g)[1]
-    if (message.content.startsWith('!online')) {
-      if(!server.online)
-        messageEmbedded("bananas", "Error", "Server is currently not running", 0xff0000)
-      else
-        server.online_players()
-    } else if (message.content.startsWith('!start')) {
-
-      event.register("started", () => {
-        messageEmbedded("bananas", "Status", statusMessages.start.replace('__USER__', messageAuthor), 0x00ff00)
-      })
-
-      await server.start("new")
+  
+    const line = message.content.split(/\s/g)
+    const command = line[0]
+    const param = line[1]
       
-    } else if (message.content.startsWith('!stop')) {
-
-      await server.stop()
-      event.register("stop", () => {
-        messageEmbedded("bananas", "Status", statusMessages.stop.replace('__USER__', messageAuthor), 0xff0000)
-      })
-
-      
-    } else if (message.content.startsWith('!restart')) {
-      messageEmbedded("bananas", "Status", statusMessages.restart.replace('__USER__', messageAuthor), 0xffff00)
-    }
-  } else {
-    if(!server.online) return
-    const text = escapeString(message.cleanContent)
-    server.message(message.author.username,text)
-
-  }
-})
+  
+      switch(command){
+        case '!help':
+          printHelp("bananas")
+          break;
+        case '!online':
+          if(!server.online)
+            messageEmbedded("bananas", "Error", "Server is currently not running", 0xff0000)
+          else
+          server.online_players()
+          break;
+        case '!start':
+          event.register("started", () => {
+            messageEmbedded("bananas", "Status", statusMessages.start.replace('__USER__', messageAuthor), 0x00ff00)
+          });
+          await server.start("new")
+          break;
+        case '!stop':
+          event.register("stop", () => {
+            messageEmbedded("bananas", "Status", statusMessages.stop.replace('__USER__', messageAuthor), 0xff0000)
+          });
+          await server.stop()
+          break;
+        case '!restart':
+          MessageEmbedded("bananas", "Status", statusMessages.restart.replace('__USER__', messageAuthor), 0xffff00)
+          break;
+        default:
+          if(!server.online) return
+          server.message(message.author.username,text)
+          break
+      }
+} 

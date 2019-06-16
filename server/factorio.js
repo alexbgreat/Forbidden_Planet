@@ -112,7 +112,6 @@ module.exports = class Server {
         event.trigger("started")
         break;
       case "chat_message":
-        console.log("Chat Message");
         event.trigger("chat_message",match[1])
         break;
       case "join":
