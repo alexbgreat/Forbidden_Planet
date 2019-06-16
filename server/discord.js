@@ -1,4 +1,5 @@
-const { Client, RichEmbed } = require('discord.js');
+const { Client, RichEmbed, Attachment  } = require('discord.js');
+const fs = require("fs")
 const Event = require('event.js');
 const Server = require('factorio.js');
 
@@ -19,8 +20,13 @@ const event = new Event()
 
 client.login(auth.token);
 
+const rawMessage = (channelName, message) => {
+  const bananas = client.channels.find(channel => channel.name === channelName)
+  if (!bananas) return
+  bananas.send(message)
+}
 
-const messageEmbedded = (channelName, title, message, color = 0xff0000) => {
+const messageEmbedded = (channelName, title, message, color = 0xff0000, attachment) => {
 
   const bananas = client.channels.find(channel => channel.name === channelName)
   if (!bananas) return
@@ -30,7 +36,11 @@ const messageEmbedded = (channelName, title, message, color = 0xff0000) => {
     .setTitle(`**${title}**`)
     .setColor(color)
     .setDescription(message)
-  bananas.send(embed)
+
+  if(attachment)
+    bananas.send(embed.attachFile(attachment))
+  else
+    bananas.send(embed)
 }
 
 
@@ -54,23 +64,63 @@ const commands = {
   start: {
     params: "*<**new** | **latest**>* *default:* **latest**",
     info: "starts the server",
-    usage: "!start latest"
+    usage: "!start latest",
+    permissions: "@Trusted"
   },
   stop: {
     params: "",
     info: "stops the server",
-    usage: "!stop"
+    usage: "!stop",
+    permissions: "@Moderator"
   },
   restart: {
     params: "*<**new** | **latest**>* *default:* **latest**",
     info: "restarts the server",
-    usage: "!restart"
+    usage: "!restart",
+    permissions: "@Moderator"
   },
   online: {
     params: "",
     info: "Logs the current online player count",
-    usage: "!online"
-  }
+    usage: "!online",
+    permissions: "@Everyone"
+  },
+  server: {
+    params: "",
+    info: "List server information",
+    usage: "!server",
+    permissions: "@Everyone"
+  },
+  kick: {
+    params: "*<**name**>*",
+    info: "Kicks a player from the server",
+    usage: "!kick Banana",
+    permissions: "@Moderator"
+  },
+  ban: {
+    params: "*<**name**>*",
+    info: "Bans a player from the server",
+    usage: "!ban Banana",
+    permissions: "@Moderator"
+  },
+  unban: {
+    params: "*<**name**>*",
+    info: "Un-bans a player from the server",
+    usage: "!unban Banana",
+    permissions: "@Moderator"
+  },
+  promote: {
+    params: "*<**name**>*",
+    info: "Promotes a in-game player to *Admin*",
+    usage: "!promote Banana",
+    permissions: "@Administrator"
+  },
+  demote: {
+    params: "*<**name**>*",
+    info: "Demotes a in-game player",
+    usage: "!demote Banana",
+    permissions: "@Administrator"
+  },
 }
 const printHelp = (channelName) => {
   const bananas = client.channels.find(channel => channel.name === channelName)
@@ -80,7 +130,7 @@ const printHelp = (channelName) => {
   let string = ""
 
   for (let [name, value] of Object.entries(commands)) {
-    string += `**!${name}** ${value.params}\n\t↳ ${value.info}\n\t↳ Usage: \`${value.usage}\`\n\n`
+    string += `**!${name}** ${value.params}\n\t↳ ${value.info}\n\t↳ Usage: \`${value.usage}\`\n↳Permissions: **${value.permissions}**\n\n`
   }
   messageEmbedded("bananas", "Commands", string, 0xaa55ff)
 
@@ -93,7 +143,7 @@ const statusMessages = {
   restart: `Server was **Restarted** by __USER__`,
   update: `Server was **Updated** to __VERSION__ by __USER__`,
   online: `Players **Online** __ONLINE__`,
-  error: `\`\`\`__ERROR__\`\`\``
+  error: `The server has crashed!\n\`\`\`__ERROR__\`\`\`\n`
 }
 
 /*
