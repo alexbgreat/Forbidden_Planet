@@ -8,10 +8,12 @@
   },
   "dependencies": {
     "discord.js": "^11.5.1"
-  },  
+  },
   "devDependencies": {
     "@babel/core": "^7.1.2",
     "@babel/preset-env": "^7.1.0",
-    "@babel/register": "^7.0.0"
+    "@babel/register": "^7.0.0",
+    "chai": "^4.2.0",
+    "istanbul": "^0.4.5"
   }
 }
